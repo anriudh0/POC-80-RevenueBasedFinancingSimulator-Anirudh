@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { motion } from "framer-motion";
 import {
@@ -297,6 +297,7 @@ function ChartPanel({
 export default function Home() {
   const { inputs, setInputs, scenario, macroContext, isLoading, error } =
     useRbfSimulator();
+  const [isMounted, setIsMounted] = useState(false);
 
   const repaymentRows = useMemo(() => toChartRows(scenario), [scenario]);
 
@@ -321,6 +322,10 @@ export default function Home() {
     scenario !== null &&
     scenario.equity_comparison.founder_exit_cost >
       scenario.equity_comparison.rbf_total_cost;
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <main className="min-h-screen px-4 py-4 text-slate-100 sm:px-6 lg:px-8">
@@ -596,7 +601,7 @@ export default function Home() {
                   status={isLoading ? "updating" : "live"}
                 >
                   <div className="h-[320px] rounded-md border border-white/10 bg-black/20 p-3">
-                    {repaymentRows.length ? (
+                    {isMounted && repaymentRows.length ? (
                       <ResponsiveContainer
                         width="100%"
                         height="100%"
@@ -673,7 +678,7 @@ export default function Home() {
               <MotionCard>
                 <ChartPanel title="Equity Comparison" icon={Building2} status="stark contrast">
                   <div className="h-[320px] rounded-md border border-white/10 bg-black/20 p-3">
-                    {equityRows.length ? (
+                    {isMounted && equityRows.length ? (
                       <ResponsiveContainer
                         width="100%"
                         height="100%"

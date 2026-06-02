@@ -13,3 +13,4 @@ venv
 docs/internal/
 playwright-report
 test-results
+output/playwright/

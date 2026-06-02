@@ -10,7 +10,9 @@ venv
 .venv
 .pnpm-debug.log
 .vscode
-docs/internal/
+docs/
+brief.md
+.pytest_cache
 playwright-report
 test-results
 output/playwright/

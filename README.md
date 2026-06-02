@@ -1,65 +1,73 @@
 # Revenue-Based Financing Simulator
 
-PoC #80 for the Real Rails Intelligence Library.
+PoC #80 for the Real Rails Intelligence Library. This simulator provides a high-fidelity environment for modeling Revenue-Based Financing (RBF) contracts and comparing them against traditional equity dilution.
 
-## What is included
+## 🔷 Intelligence Dashboard
 
-- `backend/`: FastAPI math and data API
-- `frontend/`: Next.js dashboard shell and live simulator
-- `screenshots/`: Validation screenshots from the latest browser run
+![Desktop Dashboard](screenshots/desktop.png)
+*Cinematic Dark Dashboard featuring real-time RBF modeling.*
 
-## Visuals
+![Mobile View](screenshots/mobile.png)
+*Responsive mobile-first storytelling.*
 
-- Desktop screenshot: `screenshots/desktop.png`
-- Mobile screenshot: `screenshots/mobile.png`
-- Demo video: add a hosted link here if you produce one later
+## 🚀 Key Features
 
-## Prerequisites
+- **Dynamic RBF Modeling:** Adjust investment, revenue share, and repayment caps with real-time feedback.
+- **Equity Comparison:** Side-by-side visualization of RBF costs vs. founder ownership loss.
+- **Macro Intelligence:** Live benchmark data fetched from **FRED** (Treasury Yields) and **World Bank** (GDP Growth).
+- **Deal Signal:** Algorithmic indicator identifying the most capital-efficient path.
 
-- Python 3.14
-- Node.js 20+ with `npm`
+## 🛠️ Stack
 
-## Run the backend
+- **Frontend:** Next.js 15, TypeScript, Tailwind CSS, shadcn/ui, Recharts, Framer Motion.
+- **Backend:** Python 3.14, FastAPI, Pydantic, Scipy-based bisection (IRR).
 
-From the repository root:
+## 📖 Prerequisites
 
+- **Python 3.14+**
+- **Node.js 20+**
+
+---
+
+## 💻 Local Setup & Execution
+
+### 1. Backend Setup
+From the root directory:
 ```powershell
+# Create and activate virtual environment
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
+.\.venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the FastAPI server
+uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
 ```
+*The API will be live at `http://127.0.0.1:8000`.*
 
-The API will be available at `http://127.0.0.1:8000`.
-
-## Run the frontend
-
-In a second terminal:
-
+### 2. Frontend Setup
+In a **new** terminal window:
 ```powershell
 cd frontend
 npm install
 npm run dev
 ```
+*The dashboard will be live at `http://127.0.0.1:3000`.*
 
-The dashboard will be available at `http://127.0.0.1:3000`.
+---
 
-If port `3000` is already in use, start the production server on another port:
+## 🔍 Validation
 
-```powershell
-cd frontend
-npm run build
-npm run start -- -p 3001
-```
+To verify the engineering integrity of the project:
 
-## Validation
+- **Logic Engine:** `pytest backend/tests`
+- **User Flow (E2E):** `cd frontend; npm run test:e2e` (Ensure both servers are running first).
 
-- Backend tests: `.\.venv\Scripts\python.exe -m pytest backend/tests`
-- Frontend lint: `cd frontend; npm run lint`
-- Frontend build: `cd frontend; npm run build`
-- Frontend E2E: `cd frontend; npm run test:e2e` after the backend and production frontend are running
+---
 
-## Notes
+## 🧠 Why this matters
 
-- The frontend expects the backend at `http://127.0.0.1:8000`.
-- Live macro data falls back to labeled mock data when the FRED API key is not set or live requests fail.
-- The repository includes production screenshots under `screenshots/` for visual verification.
+RBF is a "Success-Linked" rail. It preserves founder ownership by trading short-term cash flow for long-term equity. This tool turns complex amortization into a stark visual choice for founders and allocators.
+
+*Build for the Intelligence Library.*

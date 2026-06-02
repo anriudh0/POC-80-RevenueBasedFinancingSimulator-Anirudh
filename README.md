@@ -9,7 +9,11 @@ PoC #80 for the Real Rails Intelligence Library. This simulator provides a high-
 
 ## 🎥 Demo Video
 
-![Watch the RBF Simulator Demo](demo-vid.mp4)
+
+
+https://github.com/user-attachments/assets/3aea70f1-fcaf-43d1-9b41-88125ed94f0b
+
+
 
 *Watch the simulator in action, featuring real-time data updates and cinematic transitions.*
 

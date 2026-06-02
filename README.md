@@ -8,6 +8,12 @@ PoC #80 for the Real Rails Intelligence Library.
 - `frontend/`: Next.js dashboard shell and live simulator
 - `screenshots/`: Validation screenshots from the latest browser run
 
+## Visuals
+
+- Desktop screenshot: `screenshots/desktop.png`
+- Mobile screenshot: `screenshots/mobile.png`
+- Demo video: add a hosted link here if you produce one later
+
 ## Prerequisites
 
 - Python 3.14

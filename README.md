@@ -7,6 +7,12 @@ PoC #80 for the Real Rails Intelligence Library. This simulator provides a high-
 ![Desktop Dashboard](screenshots/desktop.png)
 *Cinematic Dark Dashboard featuring real-time RBF modeling.*
 
+## 🎥 Demo Video
+
+https://github.com/anriudh0/POC-80-RevenueBasedFinancingSimulator-Anirudh/raw/main/demo.mp4
+
+*Watch the simulator in action, featuring real-time data updates and cinematic transitions.*
+
 ![Mobile View](screenshots/mobile.png)
 *Responsive mobile-first storytelling.*
 

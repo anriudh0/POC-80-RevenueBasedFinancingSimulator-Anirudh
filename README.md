@@ -56,6 +56,7 @@ npm run start -- -p 3001
 - Backend tests: `.\.venv\Scripts\python.exe -m pytest backend/tests`
 - Frontend lint: `cd frontend; npm run lint`
 - Frontend build: `cd frontend; npm run build`
+- Frontend E2E: `cd frontend; npm run test:e2e` after the backend and production frontend are running
 
 ## Notes
 

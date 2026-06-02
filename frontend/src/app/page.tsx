@@ -49,6 +49,7 @@ import { useRbfSimulator } from "@/hooks/use-rbf-simulator";
 
 type SliderSpec = {
   key: keyof SimulatorInputs;
+  testId: string;
   label: string;
   icon: typeof BadgeDollarSign;
   min: number;
@@ -69,6 +70,7 @@ type ChartRow = {
 const sliderSpecs: SliderSpec[] = [
   {
     key: "investmentAmount",
+    testId: "investment-amount",
     label: "Investment Amount",
     icon: BadgeDollarSign,
     min: 250_000,
@@ -78,6 +80,7 @@ const sliderSpecs: SliderSpec[] = [
   },
   {
     key: "monthlyRevenue",
+    testId: "monthly-revenue",
     label: "Monthly Revenue",
     icon: Banknote,
     min: 50_000,
@@ -87,6 +90,7 @@ const sliderSpecs: SliderSpec[] = [
   },
   {
     key: "monthlyGrowthRate",
+    testId: "monthly-growth-rate",
     label: "Growth Rate",
     icon: TrendingUp,
     min: -0.05,
@@ -97,6 +101,7 @@ const sliderSpecs: SliderSpec[] = [
   },
   {
     key: "repaymentCapMultiple",
+    testId: "repayment-cap",
     label: "Repayment Cap",
     icon: Percent,
     min: 1.2,
@@ -106,6 +111,7 @@ const sliderSpecs: SliderSpec[] = [
   },
   {
     key: "revenueSharePercent",
+    testId: "revenue-share",
     label: "Revenue Share",
     icon: BarChart3,
     min: 0.03,
@@ -116,6 +122,7 @@ const sliderSpecs: SliderSpec[] = [
   },
   {
     key: "postMoneyValuation",
+    testId: "post-money-valuation",
     label: "Post-Money Valuation",
     icon: Building2,
     min: 1_000_000,
@@ -125,6 +132,7 @@ const sliderSpecs: SliderSpec[] = [
   },
   {
     key: "exitValue",
+    testId: "exit-value",
     label: "Exit Value",
     icon: ArrowUpRight,
     min: 5_000_000,
@@ -226,7 +234,11 @@ function InputSlider({
   const Icon = spec.icon;
 
   return (
-    <motion.div variants={microVariants} className="space-y-3">
+    <motion.div
+      variants={microVariants}
+      className="space-y-3"
+      data-testid={`control-${spec.testId}`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-sm text-slate-300">
@@ -236,9 +248,15 @@ function InputSlider({
           </div>
           {spec.note ? <p className="text-xs text-slate-500">{spec.note}</p> : null}
         </div>
-        <span className="font-mono text-sm text-white">{spec.format(value)}</span>
+        <span
+          className="font-mono text-sm text-white"
+          data-testid={`${spec.testId}-value`}
+        >
+          {spec.format(value)}
+        </span>
       </div>
       <Slider
+        data-testid={`${spec.testId}-slider`}
         value={[value]}
         max={spec.max}
         min={spec.min}
@@ -327,7 +345,11 @@ export default function Home() {
             <span className="text-sm text-slate-300">
               {isLoading ? "Refreshing scenario" : "Backend live"}
             </span>
-            <Switch aria-label="Backend readiness indicator" defaultChecked />
+            <Switch
+              aria-label="Backend readiness indicator"
+              data-testid="backend-readiness-switch"
+              defaultChecked
+            />
           </div>
         </header>
 
@@ -472,7 +494,10 @@ export default function Home() {
                     Total RBF Cap
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-2xl font-semibold text-white">
+                <CardContent
+                  className="text-2xl font-semibold text-white"
+                  data-testid="metric-total-rbf-cap"
+                >
                   {scenario ? formatCurrency(scenario.total_repayment_cap) : "..."}
                 </CardContent>
               </MotionCard>

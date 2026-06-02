@@ -9,7 +9,7 @@ PoC #80 for the Real Rails Intelligence Library. This simulator provides a high-
 
 ## 🎥 Demo Video
 
-https://github.com/anriudh0/POC-80-RevenueBasedFinancingSimulator-Anirudh/raw/main/demo.mp4
+https://github.com/anriudh0/POC-80-RevenueBasedFinancingSimulator-Anirudh/raw/main/demo-vid.mp4
 
 *Watch the simulator in action, featuring real-time data updates and cinematic transitions.*
 

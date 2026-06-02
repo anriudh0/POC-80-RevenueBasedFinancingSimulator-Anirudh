@@ -9,13 +9,7 @@ PoC #80 for the Real Rails Intelligence Library. This simulator provides a high-
 
 ## 🎥 Demo Video
 
-https://github.com/user-attachments/assets/demo-vid.mp4
-
-https://github.com/anriudh0/POC-80-RevenueBasedFinancingSimulator-Anirudh/blob/main/demo-vid.mp4?raw=true
-
-<video src="https://github.com/anriudh0/POC-80-RevenueBasedFinancingSimulator-Anirudh/blob/main/demo-vid.mp4?raw=true" controls="controls" style="max-width: 100%; height: auto;">
-  Your browser does not support the video tag.
-</video>
+![Watch the RBF Simulator Demo](demo-vid.mp4)
 
 *Watch the simulator in action, featuring real-time data updates and cinematic transitions.*
 

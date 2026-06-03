@@ -12,14 +12,17 @@ import {
 
 const API_ROOT = "http://127.0.0.1:8000";
 
-export function useRbfSimulator() {
+export function useRbfSimulator(overrides?: Partial<SimulatorInputs>) {
   const [inputs, setInputs] = useState<SimulatorInputs>(defaultInputs);
   const [scenario, setScenario] = useState<ScenarioResponse | null>(null);
   const [macroContext, setMacroContext] = useState<MacroContext | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const requestBody = useMemo(() => toRequestBody(inputs), [inputs]);
+  const requestBody = useMemo(() => {
+    const finalInputs = { ...inputs, ...overrides };
+    return toRequestBody(finalInputs);
+  }, [inputs, overrides]);
 
   useEffect(() => {
     const controller = new AbortController();

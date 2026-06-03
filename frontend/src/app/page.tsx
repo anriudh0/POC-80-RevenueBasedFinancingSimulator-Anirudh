@@ -5,17 +5,21 @@ import { useEffect, useMemo, useState } from "react";
 
 import { motion } from "framer-motion";
 import {
+  ArrowDownToLine,
   ArrowUpRight,
   BadgeCheck,
   BadgeDollarSign,
   Banknote,
   BarChart3,
   Building2,
+  Download,
+  FileSpreadsheet,
   Gauge,
-  LineChart,
-  LockKeyhole,
+  Info,
+  LayoutDashboard,
   Percent,
   ShieldCheck,
+  TrendingDown,
   TrendingUp,
   TriangleAlert,
 } from "lucide-react";
@@ -175,19 +179,6 @@ const microVariants = {
   },
 } as const;
 
-const whyThisMatters = [
-  "RBF preserves ownership, so founders keep the exit optionality that equity dilutes away. The tradeoff is mechanical: a slice of monthly revenue leaves the business until the cap is cleared.",
-  "That tradeoff is why operators compare RBF against equity in cash-flow terms, not just headline cost. A smaller check can still be expensive if it starves the growth engine.",
-  "In the market, Pipe, Capchase, and Lighter Capital made revenue telemetry underwriting mainstream. They turned payment rails, banking data, and subscription velocity into a lending model that can move fast when the signal is strong.",
-];
-
-const marketControls = [
-  "Pipe helped normalize recurring-revenue underwriting for software and usage-based businesses.",
-  "Capchase pushed the market toward faster underwriting, with more emphasis on bank and revenue data than traditional collateral.",
-  "Lighter Capital anchored the earlier RBF playbook, proving that repayment tied to revenue can work without a board seat or dilution.",
-  "The real control layer is the data stack around payments and accounts. Whoever sees the cash first can price the risk first.",
-];
-
 function toChartRows(
   scenario: ReturnType<typeof useRbfSimulator>["scenario"],
 ): ChartRow[] {
@@ -294,9 +285,75 @@ function ChartPanel({
   );
 }
 
+function downloadCsv(filename: string, rows: (string | number)[][]) {
+  const content = rows.map((r) => r.join(",")).join("\n");
+  const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function exportAmortization(scenario: ReturnType<typeof useRbfSimulator>["scenario"]) {
+  if (!scenario) return;
+  const headers = ["Month", "Revenue", "Payment", "Remaining Cap"];
+  const rows = scenario.amortization.map((p) => [
+    p.month,
+    p.revenue.toFixed(2),
+    p.payment.toFixed(2),
+    p.remaining_cap.toFixed(2),
+  ]);
+  downloadCsv("rbf_repayment_plan.csv", [headers, ...rows]);
+}
+
+function downloadSampleData() {
+  const headers = ["Sector", "Typical Growth (%)", "RBF Cap", "Revenue Share (%)"];
+  const rows = [
+    ["SaaS", "15", "1.5x", "8"],
+    ["E-commerce", "25", "2.0x", "12"],
+    ["DTC", "10", "1.8x", "10"],
+    ["Fintech", "20", "2.5x", "6"],
+  ];
+  downloadCsv("rbf_sample_benchmarks.csv", [headers, ...rows]);
+}
+
+function getInsights(
+  scenario: ReturnType<typeof useRbfSimulator>["scenario"],
+  macro: ReturnType<typeof useRbfSimulator>["macroContext"]
+) {
+  if (!scenario) return [];
+  const list = [];
+
+  const apr = scenario.effective_apr_percent ?? 0;
+  if (apr > (macro?.risk_free_rate.value ?? 4) + 15) {
+    list.push("High capital cost relative to market benchmarks.");
+  } else {
+    list.push("Competitive APR for non-dilutive capital.");
+  }
+
+  if ((scenario.months_to_repay ?? 0) < 24) {
+    list.push("Rapid repayment velocity detected.");
+  } else {
+    list.push("Extended repayment horizon provides cash-flow buffer.");
+  }
+
+  if (scenario.equity_comparison.founder_exit_cost > scenario.equity_comparison.rbf_total_cost * 3) {
+    list.push("Significant ownership preservation advantage.");
+  }
+
+  return list;
+}
+
 export default function Home() {
+  const [isStressTest, setIsStressTest] = useState(false);
+  const stressOverrides = useMemo(() => (isStressTest ? { monthlyGrowthRate: -0.015 } : {}), [isStressTest]);
+
   const { inputs, setInputs, scenario, macroContext, isLoading, error } =
-    useRbfSimulator();
+    useRbfSimulator(stressOverrides);
   const [isMounted, setIsMounted] = useState(false);
 
   const repaymentRows = useMemo(() => toChartRows(scenario), [scenario]);
@@ -323,13 +380,16 @@ export default function Home() {
     scenario.equity_comparison.founder_exit_cost >
       scenario.equity_comparison.rbf_total_cost;
 
+  const insights = useMemo(() => getInsights(scenario, macroContext), [scenario, macroContext]);
+
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
   }, []);
 
   return (
     <main className="min-h-screen px-4 py-4 text-slate-100 sm:px-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 lg:min-h-[calc(100vh-2rem)]">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 lg:h-[calc(100vh-2rem)]">
         <header className="flex flex-col justify-between gap-4 border-b border-white/10 pb-4 md:flex-row md:items-end">
           <div>
             <div className="mb-3 flex items-center gap-2 text-sm font-medium text-cyan-200">
@@ -340,8 +400,8 @@ export default function Home() {
               Revenue-Based Financing Simulator
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-              Live scenario modeling for non-dilutive capital, with benchmark
-              context pulled from FRED and the World Bank.
+              High-fidelity intelligence for non-dilutive capital, with real-world 
+              benchmarks from FRED and the World Bank.
             </p>
           </div>
 
@@ -359,82 +419,65 @@ export default function Home() {
         </header>
 
         <motion.div
-          className="grid flex-1 gap-4 lg:grid-cols-[320px_minmax(0,1fr)]"
+          className="grid flex-1 gap-4 lg:grid-cols-[360px_minmax(0,1fr)] lg:overflow-hidden"
           variants={shellVariants}
           initial="hidden"
           animate="visible"
         >
-          <motion.aside variants={cardVariants}>
-            <Card className="h-full border-white/10 bg-slate-950/70 shadow-2xl shadow-black/30 backdrop-blur">
-              <CardHeader className="border-b border-white/10">
+          <motion.aside variants={cardVariants} className="lg:h-full lg:overflow-hidden">
+            <Card className="flex h-full flex-col border-white/10 bg-slate-950/70 shadow-2xl shadow-black/30 backdrop-blur">
+              <CardHeader className="border-b border-white/10 py-4">
                 <CardTitle className="flex items-center justify-between text-base text-white">
-                  Simulator Controls
+                  Intelligence Hub
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 text-slate-400 hover:text-white"
-                      >
-                        <LockKeyhole className="h-4 w-4" />
-                      </Button>
+                      <LayoutDashboard className="h-4 w-4 text-slate-400" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      Inputs debounce before calling the backend scenario API.
+                      Full-spectrum modeling and market context.
                     </TooltipContent>
                   </Tooltip>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6 pt-5">
-                <motion.div
-                  className="grid gap-3 rounded-md border border-white/10 bg-white/[0.03] p-3"
-                  variants={microVariants}
-                >
-                  <div className="flex items-center justify-between gap-3 text-xs uppercase tracking-wide text-slate-500">
-                    <span>Macro Context</span>
-                    <span>{macroContext ? macroContext.risk_free_rate.date : "Live"}</span>
+              <CardContent className="flex-1 space-y-8 overflow-y-auto px-6 py-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                {/* 1. Macro Context */}
+                <motion.section className="space-y-4" variants={microVariants}>
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <Info className="h-3.5 w-3.5 text-cyan-400" />
+                    Macro Context
                   </div>
-                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+                  <div className="grid gap-2">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className="flex items-center justify-between rounded-md border border-cyan-400/20 bg-cyan-400/10 px-3 py-2">
-                          <span className="text-sm text-cyan-100">
-                            Risk-Free Rate
-                          </span>
-                          <span className="font-mono text-sm text-white">
-                            {macroContext
-                              ? `${macroContext.risk_free_rate.value.toFixed(2)}%`
-                              : "..."}
+                        <div className="flex items-center justify-between rounded-md border border-cyan-400/20 bg-cyan-400/5 px-3 py-2.5 transition-colors hover:bg-cyan-400/10">
+                          <span className="text-sm text-cyan-100">Risk-Free Rate</span>
+                          <span className="font-mono text-sm font-bold text-white">
+                            {macroContext ? `${macroContext.risk_free_rate.value.toFixed(2)}%` : "..."}
                           </span>
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent>
-                        {macroContext?.risk_free_rate.note ??
-                          "FRED benchmark for the 10-year Treasury series."}
-                      </TooltipContent>
+                      <TooltipContent>{macroContext?.risk_free_rate.note ?? "FRED benchmark"}</TooltipContent>
                     </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className="flex items-center justify-between rounded-md border border-emerald-400/20 bg-emerald-400/10 px-3 py-2">
-                          <span className="text-sm text-emerald-100">
-                            Benchmarked Growth
-                          </span>
-                          <span className="font-mono text-sm text-white">
-                            {macroContext
-                              ? `${macroContext.gdp_growth.value.toFixed(2)}%`
-                              : "..."}
+                        <div className="flex items-center justify-between rounded-md border border-emerald-400/20 bg-emerald-400/5 px-3 py-2.5 transition-colors hover:bg-emerald-400/10">
+                          <span className="text-sm text-emerald-100">GDP Growth</span>
+                          <span className="font-mono text-sm font-bold text-white">
+                            {macroContext ? `${macroContext.gdp_growth.value.toFixed(2)}%` : "..."}
                           </span>
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent>
-                        {macroContext?.gdp_growth.note ??
-                          "World Bank GDP growth benchmark used to contextualize the growth slider."}
-                      </TooltipContent>
+                      <TooltipContent>{macroContext?.gdp_growth.note ?? "World Bank benchmark"}</TooltipContent>
                     </Tooltip>
                   </div>
-                </motion.div>
+                </motion.section>
 
-                <motion.div className="space-y-6" variants={shellVariants}>
+                {/* 2. Controls */}
+                <motion.section className="space-y-6" variants={shellVariants}>
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <Percent className="h-3.5 w-3.5 text-cyan-400" />
+                    Contract Controls
+                  </div>
                   {sliderSpecs.map((spec) => (
                     <InputSlider
                       key={String(spec.key)}
@@ -446,39 +489,86 @@ export default function Home() {
                           [spec.key]: next,
                         }))
                       }
-                      macroHint={
-                        spec.key === "monthlyGrowthRate" ? (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="cursor-help text-xs text-cyan-200">
-                                benchmarked
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              Tracks macro growth context from the World Bank.
-                            </TooltipContent>
-                          </Tooltip>
-                        ) : null
-                      }
                     />
                   ))}
-                </motion.div>
+                  
+                  <div className="flex items-center justify-between gap-4 rounded-lg border border-rose-500/20 bg-rose-500/5 p-4 transition-colors hover:bg-rose-500/10">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-sm font-medium text-rose-200">
+                        <TrendingDown className="h-4 w-4" />
+                        Downside Stress Case
+                      </div>
+                      <p className="text-xs text-slate-500 italic">Overrides growth to -1.5%</p>
+                    </div>
+                    <Switch 
+                      checked={isStressTest} 
+                      onCheckedChange={setIsStressTest}
+                      className="data-[state=checked]:bg-rose-500"
+                    />
+                  </div>
+                </motion.section>
 
-                <div className="grid grid-cols-2 gap-3 pt-1">
-                  <Button className="bg-cyan-300 text-slate-950 hover:bg-cyan-200">
-                    <LineChart className="h-4 w-4" />
-                    Model
+                {/* 3. Insights */}
+                <motion.section className="space-y-4 border-t border-white/10 pt-6" variants={microVariants}>
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <FileSpreadsheet className="h-3.5 w-3.5 text-cyan-400" />
+                    Insights
+                  </div>
+                  <div className="space-y-2">
+                    {insights.map((insight, i) => (
+                      <div key={i} className="flex gap-2 rounded-md bg-white/[0.03] p-3 text-xs leading-relaxed text-slate-300">
+                        <div className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-cyan-400" />
+                        {insight}
+                      </div>
+                    ))}
+                    {insights.length === 0 && (
+                      <p className="text-xs italic text-slate-500">Waiting for scenario analysis...</p>
+                    )}
+                  </div>
+                </motion.section>
+
+                {/* 4. Narrative Panels */}
+                <motion.section className="space-y-6 border-t border-white/10 pt-6 pb-2" variants={microVariants}>
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-white">Why this matters</h4>
+                    <p className="text-xs leading-relaxed text-slate-400">
+                      RBF preserves ownership, trading short-term cash flow for long-term equity optionality. 
+                      Founders use this model to find the &quot;Break-even Ownership&quot; point.
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-white">Who controls this rail</h4>
+                    <ul className="grid gap-2 text-xs text-slate-400">
+                      <li className="flex items-center gap-2"><div className="h-1 w-1 rounded-full bg-slate-600" /> Pipe: Recurring revenue underwriting.</li>
+                      <li className="flex items-center gap-2"><div className="h-1 w-1 rounded-full bg-slate-600" /> Capchase: Frictionless liquidity.</li>
+                      <li className="flex items-center gap-2"><div className="h-1 w-1 rounded-full bg-slate-600" /> Lighter Capital: The original RBF rail.</li>
+                    </ul>
+                  </div>
+                </motion.section>
+
+                {/* 5. Actions */}
+                <motion.section className="grid gap-3 pt-2" variants={microVariants}>
+                  <Button 
+                    className="w-full bg-cyan-500 text-slate-950 hover:bg-cyan-400 font-semibold"
+                    onClick={() => exportAmortization(scenario)}
+                  >
+                    <Download className="h-4 w-4" />
+                    Export Full Plan
                   </Button>
-                  <Button variant="outline" className="border-white/10">
-                    Export
-                    <ArrowUpRight className="h-4 w-4" />
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-white/10 hover:bg-white/5 text-slate-300"
+                    onClick={downloadSampleData}
+                  >
+                    <ArrowDownToLine className="h-4 w-4" />
+                    Download Sample Data
                   </Button>
-                </div>
+                </motion.section>
               </CardContent>
             </Card>
           </motion.aside>
 
-          <section className="grid gap-4">
+          <section className="flex h-full flex-col gap-4 lg:overflow-y-auto lg:pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 pb-8">
             {error ? (
               <Card className="border-rose-400/30 bg-rose-500/10">
                 <CardContent className="py-4 text-sm text-rose-100">
@@ -749,39 +839,6 @@ export default function Home() {
                 </ChartPanel>
               </MotionCard>
             </div>
-
-            <motion.div
-              className="grid gap-4 md:grid-cols-2"
-              variants={shellVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              <MotionCard className="h-full border-white/10 bg-slate-950/60 backdrop-blur">
-                <CardHeader>
-                  <CardTitle className="text-base text-white">
-                    Why this matters
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm leading-6 text-slate-300">
-                  {whyThisMatters.map((point) => (
-                    <p key={point}>{point}</p>
-                  ))}
-                </CardContent>
-              </MotionCard>
-
-              <MotionCard className="h-full border-white/10 bg-slate-950/60 backdrop-blur">
-                <CardHeader>
-                  <CardTitle className="text-base text-white">
-                    Market Controls
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm leading-6 text-slate-300">
-                  {marketControls.map((point) => (
-                    <p key={point}>{point}</p>
-                  ))}
-                </CardContent>
-              </MotionCard>
-            </motion.div>
           </section>
         </motion.div>
       </div>

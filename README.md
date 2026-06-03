@@ -22,9 +22,12 @@ https://github.com/user-attachments/assets/3aea70f1-fcaf-43d1-9b41-88125ed94f0b
 
 ## 🚀 Key Features
 
-- **Dynamic RBF Modeling:** Adjust investment, revenue share, and repayment caps with real-time feedback.
-- **Equity Comparison:** Side-by-side visualization of RBF costs vs. founder ownership loss.
+- **Intelligence Hub:** Always-open scrollable sidebar providing real-time insights and market context.
+- **Dynamic RBF Modeling:** Interactive revenue slider and contract term adjustments with instant payback curve updates.
+- **Downside Stress Cases:** One-click recession simulation (Growth override) to test cash-flow resilience.
+- **Equity Comparison:** Side-by-side visualization comparing RBF costs against founder ownership loss in an equity raise.
 - **Macro Intelligence:** Live benchmark data fetched from **FRED** (Treasury Yields) and **World Bank** (GDP Growth).
+- **Data Portability:** Export full amortization plans and sample benchmark data as CSV directly from the dashboard.
 - **Deal Signal:** Algorithmic indicator identifying the most capital-efficient path.
 
 ## 🛠️ Stack

@@ -9,7 +9,7 @@ PoC #80 for the Real Rails Intelligence Library. This simulator provides a high-
 
 ## 🎥 Demo Video
 
-<!-- DEMO VIDEO PLACEHOLDER - INSERT VIDEO LINK HERE -->
+https://github.com/user-attachments/assets/7ef594b4-6eb4-4fa7-a01d-055e7586afc8
 
 <br/>
 <br/>

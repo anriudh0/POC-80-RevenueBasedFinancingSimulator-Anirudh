@@ -311,12 +311,12 @@ function exportAmortization(scenario: ReturnType<typeof useRbfSimulator>["scenar
 }
 
 function downloadSampleData() {
-  const headers = ["Sector", "Typical Growth (%)", "RBF Cap", "Revenue Share (%)"];
+  const headers = ["Dataset", "Sector", "Typical Growth (%)", "RBF Cap", "Revenue Share (%)"];
   const rows = [
-    ["SaaS", "15", "1.5x", "8"],
-    ["E-commerce", "25", "2.0x", "12"],
-    ["DTC", "10", "1.8x", "10"],
-    ["Fintech", "20", "2.5x", "6"],
+    ["Synthetic sample data", "SaaS", "15", "1.5x", "8"],
+    ["Synthetic sample data", "E-commerce", "25", "2.0x", "12"],
+    ["Synthetic sample data", "DTC", "10", "1.8x", "10"],
+    ["Synthetic sample data", "Fintech", "20", "2.5x", "6"],
   ];
   downloadCsv("rbf_sample_benchmarks.csv", [headers, ...rows]);
 }
@@ -563,6 +563,9 @@ export default function Home() {
                     <ArrowDownToLine className="h-4 w-4" />
                     Download Sample Data
                   </Button>
+                  <p className="text-center text-xs text-slate-500">
+                    Synthetic benchmark dataset for demonstration only.
+                  </p>
                 </motion.section>
               </CardContent>
             </Card>
